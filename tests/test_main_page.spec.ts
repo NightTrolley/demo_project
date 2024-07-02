@@ -1,24 +1,12 @@
 import {test, expect} from "@playwright/test";
 import {MainPage} from "../Pages/MainPage";
 import {BasePage} from "../Pages/BasePage";
-import {VIDEO_BANNER, VIDEO_BANNER_LIST} from "../Utils/Locators";
+import {TV_SHELF, VIDEO_BANNER, VIDEO_BANNER_LIST, VIDEO_SHELF} from "../Utils/Locators";
 import {LoginData} from "../Utils/LoginData";
 import {ProfilePage} from "../Pages/ProfilePage";
+import assert = require("node:assert");
 
-test("main_page", async ({page}) => {
-    const mainPage = new MainPage(page);
-    await mainPage.open_main_page()
-})
-
-test("authorize from header", async ({page}) => {
-    const basePage = new BasePage(page);
-    const mainPage = new MainPage(page);
-    await mainPage.open_main_page();
-    await basePage.auth(LoginData.user_without_sub);
-})
-
-
-test("check video banner", async ({page}) => {
+test("Главная. Баннер. Автоматическая смена баннера", async ({page}) => {
     const mainPage = new MainPage(page);
     const basePage = new BasePage(page);
     await test.step("Открыть главную и доскроллить до баннера", async () => {
@@ -31,16 +19,16 @@ test("check video banner", async ({page}) => {
     })
 })
 
-//TODO: Необходимо реализовать систему локаторов т.к. на данный момент видеополка и
-// баннерная карусель не отличимы друг от друга
-test.skip("Смена постера видеополки стрелками", async ({page}) => {
+test("Смена постера видеополки стрелками", async ({page}) => {
     const basePage = new BasePage(page);
     const mainPage = new MainPage(page);
     await test.step("Открыть главную, проскроллить до видеополки", async () => {
         await mainPage.open_main_page();
-        await basePage.find_element("xpath=.//div[@class='banner-carousel-container'][1]")
-            .scrollIntoViewIfNeeded()
-        await page.pause()
+        await basePage.scrollToElem(VIDEO_SHELF)
+        let elem_1 = await mainPage.get_carousel_active_element(VIDEO_SHELF)
+        await mainPage.clickToArrow(VIDEO_SHELF)
+        let elem_2 = await mainPage.get_carousel_active_element(VIDEO_SHELF)
+        assert(elem_1 != elem_2, "Постер после клика не сменился")
     })
 })
 
@@ -50,10 +38,13 @@ test("Главная. Детский режим. Фильтрация канал
     const profilePage = new ProfilePage(page);
     await test.step("Авторизоваться. Переключить РК на 6+", async() => {
         await mainPage.open_main_page()
-        await page.pause()
         await basePage.auth(LoginData.user_without_sub);
         await profilePage.changeParentControl("6+")
         await basePage.changeTab("Главная")
+        await basePage.scrollToElem(TV_SHELF)
+    })
+    await test.step("На Главной нет полки с ТВ-каналами", async () => {
+        await expect(basePage.find_element(TV_SHELF)).toBeVisible({timeout:0})
         await page.pause()
     })
 })

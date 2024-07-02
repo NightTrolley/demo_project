@@ -1,6 +1,6 @@
 import {expect, Locator, Page} from "@playwright/test";
 import {
-    AUTHORIZE_BUTTON_FROM_HEADER,
+    AUTHORIZE_BUTTON_FROM_HEADER, FOOTER,
     MAIN_PAGE_UL,
     MTS_LOGIN_FORM, MTS_LOGIN_INPUT, MTS_LOGIN_OTP_INPUT,
     MTS_LOGIN_PAGE_LOGIN_BUTTON, PARENT_CONTROL,
@@ -39,6 +39,19 @@ export class BasePage{
 
     async changeTab(tabName: string){
         await this.page.locator('web-header').getByRole('link', { name: tabName }).click()
+    }
+
+    async scrollToElem(locator: string){
+        while(!await this.page.locator(locator).isVisible()){
+            await this.page.mouse.wheel(0, 300)
+            let scrollHeight = await this.page.evaluate(() => {
+                return window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight;
+            })
+            if (scrollHeight === true){
+                break;
+            }
+        }
+        await this.page.locator(locator).scrollIntoViewIfNeeded()
     }
 
     /*
