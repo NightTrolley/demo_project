@@ -18,6 +18,8 @@ import {machine} from "node:os";
 test("Главная. Баннер. Автоматическая смена баннера", async ({page}) => {
     const mainPage = new MainPage(page);
     const basePage = new BasePage(page);
+    await basePage.auth(LoginData.user_without_sub)
+    await page.pause()
     await test.step("Открыть главную и доскроллить до баннера", async () => {
         await mainPage.open_main_page()
         expect(basePage.find_element(VIDEO_BANNER).scrollIntoViewIfNeeded())

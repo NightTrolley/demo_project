@@ -77,7 +77,7 @@ export class BasePage{
     * Метод авторизации
     * Принимает в себя объект авторизационных данных
     */
-    async auth(authData){
+    async auth(authData: any){
         let phone: string
         let otp: string
         authData.forEach((e) => {
