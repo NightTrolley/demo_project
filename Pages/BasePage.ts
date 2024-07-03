@@ -1,11 +1,11 @@
-import {expect, Page} from "@playwright/test";
+import {expect, Locator, Page} from "@playwright/test";
 import {
     AGE_DIALOG,
-    AUTHORIZE_BUTTON_FROM_HEADER,
+    AUTHORIZE_BUTTON_FROM_HEADER, LEFT_ARROW,
     MTS_LOGIN_FORM,
     MTS_LOGIN_INPUT,
     MTS_LOGIN_OTP_INPUT,
-    MTS_LOGIN_PAGE_LOGIN_BUTTON,
+    MTS_LOGIN_PAGE_LOGIN_BUTTON, RIGHT_ARROW, SHELF, SHELF_POSTER_ITEM,
 } from "../Utils/Locators";
 
 export class BasePage{
@@ -41,6 +41,17 @@ export class BasePage{
 
     async changeTab(tabName: string){
         await this.page.locator('web-header').getByRole('link', { name: tabName }).click()
+    }
+
+    //TODO: Подумать о необходимости перенести метод в другой файл
+    async scroll_shelf_right(shelf_locator: string){
+        let shelf = this.find_element(shelf_locator).first()
+        await shelf.locator(RIGHT_ARROW).click()
+    }
+
+    async scroll_shelf_left(shelf_locator: string){
+        let shelf = this.find_element(shelf_locator).first()
+        await shelf.locator(LEFT_ARROW).click()
     }
 
     async scrollToElem(locator: string){
