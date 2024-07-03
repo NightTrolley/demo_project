@@ -1,9 +1,11 @@
-import {expect, Locator, Page} from "@playwright/test";
+import {expect, Page} from "@playwright/test";
 import {
-    AUTHORIZE_BUTTON_FROM_HEADER, FOOTER,
-    MAIN_PAGE_UL,
-    MTS_LOGIN_FORM, MTS_LOGIN_INPUT, MTS_LOGIN_OTP_INPUT,
-    MTS_LOGIN_PAGE_LOGIN_BUTTON, PARENT_CONTROL,
+    AGE_DIALOG,
+    AUTHORIZE_BUTTON_FROM_HEADER,
+    MTS_LOGIN_FORM,
+    MTS_LOGIN_INPUT,
+    MTS_LOGIN_OTP_INPUT,
+    MTS_LOGIN_PAGE_LOGIN_BUTTON,
 } from "../Utils/Locators";
 
 export class BasePage{
@@ -54,13 +56,19 @@ export class BasePage{
         await this.page.locator(locator).scrollIntoViewIfNeeded()
     }
 
-    /*
+    async checkModal(locator: string){
+        //Таймаут добавлен из-за fade эффекта на модалке
+        await new Promise(resolve => setTimeout(resolve, 500))
+        return await this.page.locator(AGE_DIALOG).isVisible()
+    }
+
+    /**
     * Метод авторизации
     * Принимает в себя объект авторизационных данных
     */
     async auth(authData){
-        let phone
-        let otp
+        let phone: string
+        let otp: string
         authData.forEach((e) => {
             phone = e.phone;
             otp = e.otp;
@@ -70,7 +78,6 @@ export class BasePage{
         await this.page.locator(MTS_LOGIN_INPUT).fill(phone)
         await this.page.locator(MTS_LOGIN_PAGE_LOGIN_BUTTON).click()
         await this.page.locator(MTS_LOGIN_OTP_INPUT).fill(otp)
-        //expect(await this.page.waitForURL(MAIN_PAGE_UL))
 
     }
 
