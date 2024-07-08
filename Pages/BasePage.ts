@@ -7,6 +7,7 @@ import {
     MTS_LOGIN_OTP_INPUT,
     MTS_LOGIN_PAGE_LOGIN_BUTTON, MY_PROFILE_BUTTON, PREMIUM_MODAL, RIGHT_ARROW, SHELF, SHELF_POSTER_ITEM,
 } from "../Utils/Locators";
+import {BASE_URL} from "../Utils/constants";
 
 export class BasePage{
 
@@ -80,7 +81,9 @@ export class BasePage{
     }
 
     async checkPremiumModal(){
-        return await this.find_element(PREMIUM_MODAL).isVisible()
+        if (await this.find_element(PREMIUM_MODAL).isVisible()){
+            await this.find_element(MODAL_CLOSE_BUTTON).click()
+        }
     }
 
     /**
@@ -99,9 +102,8 @@ export class BasePage{
         await this.find_element(MTS_LOGIN_INPUT).fill(phone)
         await this.find_element(MTS_LOGIN_PAGE_LOGIN_BUTTON).click()
         await this.find_element(MTS_LOGIN_OTP_INPUT).fill(otp)
-        if (await this.checkPremiumModal()){
-            await this.find_element(MODAL_CLOSE_BUTTON).click()
-        }
+        await this.page.waitForURL(BASE_URL)
+        await this.checkPremiumModal()
     }
 
 }

@@ -6,7 +6,7 @@ import {
     AGE_YES,
     CARD_CONTENT, FAVORITE_TV_SHELF, SHELF, SHELF_POSTER_ITEM,
     TV_SHELF,
-    VIDEO_BANNER,
+    VIDEO_BANNER, VIDEO_BANNER_ACTIVE_ELEM,
     VIDEO_BANNER_LIST,
     VIDEO_SHELF
 } from "../Utils/Locators";
@@ -21,12 +21,11 @@ test("Главная. Баннер. Автоматическая смена ба
     await test.step("Открыть главную и доскроллить до баннера", async () => {
         await mainPage.open_main_page()
         await basePage.auth(LoginData.user_without_sub)
-        expect(basePage.find_element(VIDEO_BANNER).scrollIntoViewIfNeeded())
+        expect(await basePage.find_element(VIDEO_BANNER).scrollIntoViewIfNeeded())
     })
     await test.step("Дождаться смены баннера", async () => {
         let banner = basePage.find_element(VIDEO_BANNER_LIST).nth(2)
         await expect(banner).toBeInViewport({timeout: 0})
-        await basePage.logout()
     })
 })
 
