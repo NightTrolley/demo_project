@@ -13,20 +13,20 @@ import {
 import {LoginData} from "../Utils/LoginData";
 import {ProfilePage} from "../Pages/ProfilePage";
 import assert = require("node:assert");
-import {machine} from "node:os";
+import {AGE} from "../Utils/constants";
 
 test("Главная. Баннер. Автоматическая смена баннера", async ({page}) => {
     const mainPage = new MainPage(page);
     const basePage = new BasePage(page);
-    await basePage.auth(LoginData.user_without_sub)
-    await page.pause()
     await test.step("Открыть главную и доскроллить до баннера", async () => {
         await mainPage.open_main_page()
+        await basePage.auth(LoginData.user_without_sub)
         expect(basePage.find_element(VIDEO_BANNER).scrollIntoViewIfNeeded())
     })
     await test.step("Дождаться смены баннера", async () => {
         let banner = basePage.find_element(VIDEO_BANNER_LIST).nth(2)
-        await expect(banner).toBeInViewport({timeout:0})
+        await expect(banner).toBeInViewport({timeout: 0})
+        await basePage.logout()
     })
 })
 
@@ -47,16 +47,17 @@ test("Главная. Детский режим. Фильтрация канал
     const basePage = new BasePage(page);
     const mainPage = new MainPage(page);
     const profilePage = new ProfilePage(page);
-    await test.step("Авторизоваться. Переключить РК на 6+", async() => {
+    await test.step("Авторизоваться. Переключить РК на 6+", async () => {
         await mainPage.open_main_page()
         await basePage.auth(LoginData.user_without_sub);
-        await profilePage.changeParentControl("6+")
+        await profilePage.changeParentControl(AGE["0+"])
         await basePage.changeTab("Главная")
         await basePage.scrollToElem(TV_SHELF)
     })
     await test.step("На Главной нет полки с ТВ-каналами", async () => {
-        await expect(basePage.find_element(TV_SHELF)).toBeVisible({timeout:0})
-        await page.pause()
+        await expect(basePage.find_element(TV_SHELF)).not.toBeVisible({timeout: 0})
+        await profilePage.changeParentControl(AGE["unlimited"])
+        await basePage.logout()
     })
 })
 
@@ -66,12 +67,12 @@ test("Главная. Видеополка. Переход к контенту",
     await mainPage.open_main_page()
     await test.step("Проскроллить до видеополки. Нажать на постер в видеополке",
         async () => {
-        await basePage.scrollToElem(VIDEO_SHELF)
-        await (await mainPage.get_carousel_active_element(VIDEO_SHELF)).click()
-        if (await basePage.checkModal(AGE_DIALOG)){
-            await basePage.find_element(AGE_YES).click()
-        }
-    })
+            await basePage.scrollToElem(VIDEO_SHELF)
+            await (await mainPage.get_carousel_active_element(VIDEO_SHELF)).click()
+            if (await basePage.checkModal(AGE_DIALOG)) {
+                await basePage.find_element(AGE_YES).click()
+            }
+        })
     await test.step("Открыта карточка контента", async () => {
         await expect(basePage.find_element(CARD_CONTENT),
             "Карточка контента не открылась").toBeVisible()
@@ -97,19 +98,19 @@ test("Главная. Отображение раздела. Авторизов�
         await expect(elem_1, "Полка не проскроллилась").not.toBeInViewport()
         await new Promise(resolve => setTimeout(resolve, 1000))
         await basePage.scroll_shelf_left(SHELF)
-        await page.pause()
         await expect(elem_1, "Полка не скроллится").toBeInViewport()
+        await basePage.logout()
     })
 })
 
 test("Главная. Отображение раздела при отсутствии Любимых телеканалов",
     async ({page}) => {
-    const basePage = new BasePage(page)
-    const mainPage = new MainPage(page);
-    await test.step("Перейти в раздел 'Главная' ", async () => {
-        await mainPage.open_main_page()
-        await basePage.auth(LoginData.user_without_sub)
-        await expect(basePage.find_element(FAVORITE_TV_SHELF), "Отображается полка " +
-            "с избранными каналами").not.toBeVisible()
+        const basePage = new BasePage(page);
+        const mainPage = new MainPage(page);
+        await test.step("Перейти в раздел 'Главная' ", async () => {
+            await mainPage.open_main_page()
+            await basePage.auth(LoginData.user_without_sub)
+            await expect(basePage.find_element(FAVORITE_TV_SHELF), "Отображается полка " +
+                "с избранными каналами").not.toBeVisible()
+        })
     })
-})

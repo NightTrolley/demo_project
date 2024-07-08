@@ -3,7 +3,6 @@
  */
 import {MAIN_PAGE_UL, RIGHT_ARROW, VIDEO_BANNER_ACTIVE_ELEM} from "../Utils/Locators";
 import {expect, type Locator, type Page} from "@playwright/test";
-import {secureHeapUsed} from "node:crypto";
 
 export class MainPage{
     page: Page;

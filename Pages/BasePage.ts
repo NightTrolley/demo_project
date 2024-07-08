@@ -1,11 +1,11 @@
 import {expect, Locator, Page} from "@playwright/test";
 import {
     AGE_DIALOG,
-    AUTHORIZE_BUTTON_FROM_HEADER, LEFT_ARROW,
+    AUTHORIZE_BUTTON_FROM_HEADER, LEFT_ARROW, LOGOUT_BUTTON, LOGOUT_MODAL, LOGOUT_YES, MODAL_CLOSE_BUTTON,
     MTS_LOGIN_FORM,
     MTS_LOGIN_INPUT,
     MTS_LOGIN_OTP_INPUT,
-    MTS_LOGIN_PAGE_LOGIN_BUTTON, RIGHT_ARROW, SHELF, SHELF_POSTER_ITEM,
+    MTS_LOGIN_PAGE_LOGIN_BUTTON, MY_PROFILE_BUTTON, PREMIUM_MODAL, RIGHT_ARROW, SHELF, SHELF_POSTER_ITEM,
 } from "../Utils/Locators";
 
 export class BasePage{
@@ -64,13 +64,23 @@ export class BasePage{
                 break;
             }
         }
-        await this.page.locator(locator).scrollIntoViewIfNeeded()
+        //await this.page.locator(locator).scrollIntoViewIfNeeded()
     }
 
     async checkModal(locator: string){
         //Таймаут добавлен из-за fade эффекта на модалке
         await new Promise(resolve => setTimeout(resolve, 500))
         return await this.page.locator(AGE_DIALOG).isVisible()
+    }
+
+    async logout(){
+        await this.find_element(MY_PROFILE_BUTTON).click()
+        await this.find_element(LOGOUT_BUTTON).click()
+        await this.find_element(LOGOUT_MODAL).locator(LOGOUT_YES).click()
+    }
+
+    async checkPremiumModal(){
+        return await this.find_element(PREMIUM_MODAL).isVisible()
     }
 
     /**
@@ -84,12 +94,14 @@ export class BasePage{
             phone = e.phone;
             otp = e.otp;
         })
-        await this.page.locator(AUTHORIZE_BUTTON_FROM_HEADER).click()
-        expect(await MTS_LOGIN_FORM)
-        await this.page.locator(MTS_LOGIN_INPUT).fill(phone)
-        await this.page.locator(MTS_LOGIN_PAGE_LOGIN_BUTTON).click()
-        await this.page.locator(MTS_LOGIN_OTP_INPUT).fill(otp)
-
+        await this.find_element(AUTHORIZE_BUTTON_FROM_HEADER).click()
+        await expect(this.find_element(MTS_LOGIN_FORM)).toBeVisible();
+        await this.find_element(MTS_LOGIN_INPUT).fill(phone)
+        await this.find_element(MTS_LOGIN_PAGE_LOGIN_BUTTON).click()
+        await this.find_element(MTS_LOGIN_OTP_INPUT).fill(otp)
+        if (await this.checkPremiumModal()){
+            await this.find_element(MODAL_CLOSE_BUTTON).click()
+        }
     }
 
 }
